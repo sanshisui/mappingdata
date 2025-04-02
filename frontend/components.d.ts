@@ -13,6 +13,8 @@ declare module 'vue' {
     Button: typeof import('primevue/button')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     JsonData: typeof import('./src/components/JsonData.vue')['default']
+    JsonDataChild: typeof import('./src/components/JsonDataChild.vue')['default']
+    JsonDataParent: typeof import('./src/components/JsonDataParent.vue')['default']
     Textarea: typeof import('primevue/textarea')['default']
   }
   export interface ComponentCustomProperties {

@@ -7,6 +7,8 @@ import { MiniMap } from '@vue-flow/minimap'
 import {Resolve} from "../../wailsjs/go/main/App";
 import '@vue-flow/core/dist/style.css';
 import '@vue-flow/core/dist/theme-default.css';
+import JsonDataParent from "./JsonDataParent.vue";
+import JsonDataChild from "./JsonDataChild.vue";
 
 interface TableInfo {
   tableName: string;
@@ -25,8 +27,8 @@ interface NodeDefine {
   type: string;
   data: TableData | FieldData;
   position: Position;
-  extent: string | never;
-  parentNode: string | never;
+  extent: string | undefined;
+  parentNode: string | undefined;
 
 
 }
@@ -51,7 +53,7 @@ interface Position {
 
 const value = ref('');
 const tableInfo = ref<TableInfo>();
-const nodes = ref<NodeDefine>([])
+const nodes = ref<NodeDefine[]>([])
 
 function resolve() {
   Resolve(value.value).then((data:TableInfo) => {
@@ -63,9 +65,11 @@ function resolve() {
     }
     let node:NodeDefine = {
       id: data.tableName,
-      type: 'input',
+      type: 'parent',
       data: tableData,
-      position: {x: 100, y: 100}
+      position: {x: 100, y: 100},
+      extent: undefined,
+      parentNode: undefined
     }
     nodes.value.push(node);
 
@@ -80,19 +84,16 @@ function resolve() {
 
       nodes.value.push({
         id: data.fields[i].fieldName,
-        type: 'input',
+        type: 'child',
         data: fieldData,
         position: {x: 10, y: 50 + i * 50},
-        extends: 'parent',
+        extent: 'parent',
         parentNode: data.tableName
       });
     }
 
   })
 }
-
-
-
 
 
 </script>
@@ -102,12 +103,12 @@ function resolve() {
   <Button label="Submit" @click="resolve" />
   <div class="simple-flow">
     <VueFlow :nodes="nodes" fit-view-on-init elevate-edges-on-select>
-<!--      <template #node-parent="nodeProps">-->
-<!--        <CustomNode :data="nodeProps.data" :id="nodeProps.id" />-->
-<!--      </template>-->
-<!--      <template #node-child="nodeProps">-->
-<!--        <CustomNode1 :data="nodeProps.data" :id="nodeProps.id" />-->
-<!--      </template>-->
+      <template #node-parent="nodeProps">
+        <JsonDataParent :data="nodeProps.data" :id="nodeProps.id" />
+      </template>
+      <template #node-child="nodeProps">
+        <JsonDataChild :data="nodeProps.data" :id="nodeProps.id" />
+      </template>
       <MiniMap />
 
       <Controls />
