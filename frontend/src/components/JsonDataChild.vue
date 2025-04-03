@@ -32,12 +32,12 @@ const fieldTypeDisplay = () => {
 </script>
 
 <template>
-  <div class="bg-surface-100 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded-md p-2.5 w-50 h-16 relative mt-12">
-    <div class="flex justify-between items-center mb-1">
-      <div class="font-bold text-gray-800 text-sm">{{props.data.fieldName}}</div>
-      <div class="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">{{ fieldTypeDisplay() }}</div>
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200 rounded-md p-3 relative" :style="{ width: 210 + 'px', height: 70 + 'px' }">
+    <div class="flex justify-between items-center mb-2">
+      <div class="font-semibold text-gray-800 dark:text-gray-100 text-sm">{{props.data.fieldName}}</div>
+      <div class="text-xs bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-0.5 rounded-full">{{ fieldTypeDisplay() }}</div>
     </div>
-    <div class="text-xs text-gray-400 italic mt-1 break-words" v-if="props.data.fieldComment">
+    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 break-words" v-if="props.data.fieldComment">
       {{ props.data.fieldComment }}
     </div>
 
@@ -45,7 +45,7 @@ const fieldTypeDisplay = () => {
         type="target"
         :position="Position.Left"
         :id="id + '-target-right'"
-        class="w-2.5 h-2.5 rounded-full bg-white border-2 border-gray-600 transition-all duration-200"
+        class="w-2.5 h-2.5 rounded-full bg-white dark:bg-gray-800 border-2 border-blue-500 hover:border-blue-600 hover:scale-110 transition-all duration-200"
     />
   </div>
 </template>

@@ -71,6 +71,7 @@ function resolve() {
       type: 'parent',
       data: tableData,
       position: {x: 100, y: 100},
+      draggable: true, // 父节点可拖动
     }
     nodes.value.push(node);
 
@@ -87,41 +88,41 @@ function resolve() {
         id: data.fields[i].fieldName,
         type: 'child',
         data: fieldData,
-        position: {x: 10, y: 10 + i * 30},
+        position: {x: 10, y: 80 + i * 80}, // 调整位置，使布局更加美观
         extent: 'parent',
-        parentNode: data.tableName
+        parentNode: data.tableName,
+        draggable: false, // 子节点不可拖动
       });
     }
-
   })
 }
-
-
 </script>
 
 <template>
-  <Textarea v-model="value" rows="5" cols="30" />
-  <Button label="Submit" @click="resolve" />
-  <div class="simple-flow">
-    <VueFlow :nodes="nodes" fit-view-on-init elevate-edges-on-select>
-      <template #node-parent="nodeProps">
-        <JsonDataParent :data="nodeProps.data" :id="nodeProps.id" />
-      </template>
-      <template #node-child="nodeProps">
-        <JsonDataChild :data="nodeProps.data" :id="nodeProps.id" />
-      </template>
-      <MiniMap />
-
-      <Controls />
-
-      <Background />
-    </VueFlow>
+  <div class="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-sm mb-4 border border-gray-200 dark:border-gray-700">
+    <div class="flex flex-col md:flex-row gap-4 mb-4">
+      <div class="flex-grow">
+        <Textarea v-model="value" rows="5" class="w-full" placeholder="请输入要解析的数据..." />
+      </div>
+      <div class="flex items-end">
+        <Button label="解析数据" icon="pi pi-search" @click="resolve" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200" />
+      </div>
+    </div>
+  </div>
+  
+  <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div class="w-full h-[700px] rounded-lg overflow-hidden">
+      <VueFlow :nodes="nodes" fit-view-on-init elevate-edges-on-select>
+        <template #node-parent="nodeProps">
+          <JsonDataParent :data="nodeProps.data" :id="nodeProps.id" />
+        </template>
+        <template #node-child="nodeProps">
+          <JsonDataChild :data="nodeProps.data" :id="nodeProps.id" />
+        </template>
+        <MiniMap class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm" />
+        <Controls class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm" />
+        <Background pattern="dots" gap="20" size="1" class="bg-gray-50 dark:bg-gray-900" />
+      </VueFlow>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.simple-flow {
-  width: 100%;
-  height: 700px;
-}
-</style>
