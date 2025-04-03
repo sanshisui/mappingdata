@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import {VueFlow} from '@vue-flow/core'
+import {CoordinateExtent, CoordinateExtentRange, VueFlow} from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
@@ -27,8 +27,8 @@ interface NodeDefine {
   type: string;
   data: TableData | FieldData;
   position: Position;
-  extent: string | undefined;
-  parentNode: string | undefined;
+  extent?: CoordinateExtent | CoordinateExtentRange | "parent";
+  parentNode?: string;
 
 
 }
@@ -36,6 +36,7 @@ interface TableData {
   label: string;
   tableName: string;
   tableComment: string;
+  childrenCount: number
 }
 
 interface FieldData {
@@ -58,18 +59,18 @@ const nodes = ref<NodeDefine[]>([])
 function resolve() {
   Resolve(value.value).then((data:TableInfo) => {
     tableInfo.value = data;
+    console.log("子节点:", data.fields.length)
     let tableData:TableData = {
       label: data.tableName,
       tableName: data.tableName,
       tableComment: data.tableComment,
+      childrenCount: data.fields.length
     }
     let node:NodeDefine = {
       id: data.tableName,
       type: 'parent',
       data: tableData,
       position: {x: 100, y: 100},
-      extent: undefined,
-      parentNode: undefined
     }
     nodes.value.push(node);
 
@@ -86,7 +87,7 @@ function resolve() {
         id: data.fields[i].fieldName,
         type: 'child',
         data: fieldData,
-        position: {x: 10, y: 50 + i * 50},
+        position: {x: 10, y: 10 + i * 30},
         extent: 'parent',
         parentNode: data.tableName
       });

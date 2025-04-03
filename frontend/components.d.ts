@@ -15,6 +15,7 @@ declare module 'vue' {
     JsonData: typeof import('./src/components/JsonData.vue')['default']
     JsonDataChild: typeof import('./src/components/JsonDataChild.vue')['default']
     JsonDataParent: typeof import('./src/components/JsonDataParent.vue')['default']
+    Message: typeof import('primevue/message')['default']
     Textarea: typeof import('primevue/textarea')['default']
   }
   export interface ComponentCustomProperties {
