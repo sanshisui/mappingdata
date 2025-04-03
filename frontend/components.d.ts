@@ -12,10 +12,12 @@ declare module 'vue' {
     AppTopBar: typeof import('./src/components/AppTopBar.vue')['default']
     Button: typeof import('primevue/button')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
+    JsonChild1: typeof import('./src/components/JsonChild1.vue')['default']
+    JsonChild2: typeof import('./src/components/JsonChild2.vue')['default']
     JsonData: typeof import('./src/components/JsonData.vue')['default']
     JsonDataChild: typeof import('./src/components/JsonDataChild.vue')['default']
     JsonDataParent: typeof import('./src/components/JsonDataParent.vue')['default']
-    Message: typeof import('primevue/message')['default']
+    JsonParent: typeof import('./src/components/JsonParent.vue')['default']
     Textarea: typeof import('primevue/textarea')['default']
   }
   export interface ComponentCustomProperties {

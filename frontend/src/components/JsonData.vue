@@ -9,12 +9,16 @@ import '@vue-flow/core/dist/style.css';
 import '@vue-flow/core/dist/theme-default.css';
 import JsonDataParent from "./JsonDataParent.vue";
 import JsonDataChild from "./JsonDataChild.vue";
+import JsonParent from "./JsonParent.vue";
+import JsonChild1 from "./JsonChild1.vue";
+import JsonChild2 from "./JsonChild2.vue";
 
 interface TableInfo {
   tableName: string;
   tableComment: string;
   fields: FieldInfo[];
 }
+
 interface FieldInfo {
   fieldName: string;
   fieldComment: string;
@@ -25,18 +29,27 @@ interface FieldInfo {
 interface NodeDefine {
   id: string;
   type: string;
-  data: TableData | FieldData;
+  data: TableData | FieldData | JsonData;
   position: Position;
   extent?: CoordinateExtent | CoordinateExtentRange | "parent";
   parentNode?: string;
+  draggable?: boolean;
+  hidden?: boolean;
+}
 
+interface JsonData {
+  JsonName: string;
+  childrenCount: number;
+  widthLength?: string;
+  heightLength?: string;
 
 }
+
 interface TableData {
   label: string;
   tableName: string;
   tableComment: string;
-  childrenCount: number
+  childrenCount: number;
 }
 
 interface FieldData {
@@ -54,12 +67,46 @@ interface Position {
 
 const value = ref('');
 const tableInfo = ref<TableInfo>();
-const nodes = ref<NodeDefine[]>([])
+const nodes = ref<NodeDefine[]>([
+  {
+    id: "UNB",
+    type: "jsonParent",
+    data: {"JsonName": "UNB", "childrenCount": 2},
+    position: {x : 200, y: 200},
+    draggable: true,
+  },
+  {
+    id: "UNB01",
+    type: "jsonChild1",
+    data: {"JsonName": "UNB01", "childrenCount": 2, "widthLength": "210", "heightLength": "300"},
+    position: {x : 10, y: 50},
+    extent: 'parent',
+    parentNode: 'UNB',
+    draggable: false,
+  },
+  {
+    id: "S00101",
+    type: "jsonChild1",
+    data: {"JsonName": "S00101", "childrenCount": 2, "widthLength": "190", "heightLength": "50"},
+    position: {x : 10, y: 50},
+    extent: 'parent',
+    parentNode: 'UNB01',
+    draggable: false,
+  },
+  {
+    id: "S00102",
+    type: "jsonChild1",
+    data: {"JsonName": "S00102", "childrenCount": 2, "widthLength": "190", "heightLength": "50"},
+    position: {x : 10, y: 110},
+    extent: 'parent',
+    parentNode: 'UNB01',
+    draggable: false,
+  }
+]);
 
 function resolve() {
   Resolve(value.value).then((data:TableInfo) => {
     tableInfo.value = data;
-    console.log("子节点:", data.fields.length)
     let tableData:TableData = {
       label: data.tableName,
       tableName: data.tableName,
@@ -71,7 +118,7 @@ function resolve() {
       type: 'parent',
       data: tableData,
       position: {x: 100, y: 100},
-      draggable: true, // 父节点可拖动
+      draggable: true,
     }
     nodes.value.push(node);
 
@@ -88,10 +135,10 @@ function resolve() {
         id: data.fields[i].fieldName,
         type: 'child',
         data: fieldData,
-        position: {x: 10, y: 80 + i * 80}, // 调整位置，使布局更加美观
+        position: {x: 10, y: 80 + i * 80},
         extent: 'parent',
         parentNode: data.tableName,
-        draggable: false, // 子节点不可拖动
+        draggable: false,
       });
     }
   })
@@ -112,16 +159,35 @@ function resolve() {
   
   <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
     <div class="w-full h-[700px] rounded-lg overflow-hidden">
-      <VueFlow :nodes="nodes" fit-view-on-init elevate-edges-on-select>
+      <VueFlow 
+        :nodes="nodes" 
+        fit-view-on-init 
+        elevate-edges-on-select
+        :default-viewport="{ zoom: 1.5 }"
+        :min-zoom="0.5"
+        :max-zoom="2"
+      >
         <template #node-parent="nodeProps">
           <JsonDataParent :data="nodeProps.data" :id="nodeProps.id" />
         </template>
         <template #node-child="nodeProps">
           <JsonDataChild :data="nodeProps.data" :id="nodeProps.id" />
         </template>
+        <template #node-jsonParent="nodeProps">
+          <JsonParent :data="nodeProps.data" :id="nodeProps.id"
+          />
+        </template>
+        <template #node-jsonChild1="nodeProps">
+          <JsonChild1 :data="nodeProps.data" :id="nodeProps.id"
+          />
+        </template>
+<!--        <template #node-jsonChild2="nodeProps">-->
+<!--          <JsonChild2 :data="nodeProps.data" :id="nodeProps.id"-->
+<!--          />-->
+<!--        </template>-->
         <MiniMap class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm" />
         <Controls class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm" />
-        <Background pattern="dots" gap="20" size="1" class="bg-gray-50 dark:bg-gray-900" />
+        <Background />
       </VueFlow>
     </div>
   </div>
