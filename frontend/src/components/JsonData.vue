@@ -50,6 +50,8 @@ interface TableData {
   tableName: string;
   tableComment: string;
   childrenCount: number;
+  widthLength?: string;  // 新增
+  heightLength?: string; // 新增
 }
 
 interface FieldData {
@@ -58,6 +60,8 @@ interface FieldData {
   fieldComment: string;
   fieldType: string;
   fieldLength: string;
+  widthLength?: string;  // 新增
+  heightLength?: string; // 新增
 }
 
 interface Position {
@@ -70,39 +74,107 @@ const tableInfo = ref<TableInfo>();
 const nodes = ref<NodeDefine[]>([
   {
     id: "UNB",
-    type: "jsonParent",
-    data: {"JsonName": "UNB", "childrenCount": 2},
+    type: "jsonChild1",
+    data: {"JsonName": "UNB", "childrenCount": 1, "widthLength": "230", "heightLength": "240"},
     position: {x : 200, y: 200},
     draggable: true,
+    hidden: false
   },
   {
     id: "UNB01",
     type: "jsonChild1",
-    data: {"JsonName": "UNB01", "childrenCount": 2, "widthLength": "210", "heightLength": "300"},
+    data: {"JsonName": "UNB01", "childrenCount": 2, "widthLength": "210", "heightLength": "180"},
     position: {x : 10, y: 50},
     extent: 'parent',
     parentNode: 'UNB',
     draggable: false,
+    hidden: true
   },
   {
     id: "S00101",
     type: "jsonChild1",
-    data: {"JsonName": "S00101", "childrenCount": 2, "widthLength": "190", "heightLength": "50"},
+    data: {"JsonName": "S00101", "childrenCount": 0, "widthLength": "190", "heightLength": "50"},
     position: {x : 10, y: 50},
     extent: 'parent',
     parentNode: 'UNB01',
     draggable: false,
+    hidden: true
   },
   {
     id: "S00102",
     type: "jsonChild1",
-    data: {"JsonName": "S00102", "childrenCount": 2, "widthLength": "190", "heightLength": "50"},
+    data: {"JsonName": "S00102", "childrenCount": 0, "widthLength": "190", "heightLength": "50"},
     position: {x : 10, y: 110},
     extent: 'parent',
     parentNode: 'UNB01',
     draggable: false,
+    hidden: true
   }
 ]);
+
+const handleToggleChildren = (nodeId: string, isExpanded: boolean) => {
+  let totalHeight = 0;
+  
+  // 递归收集所有子节点ID
+  const collectChildNodes = (parentId: string, ids: Set<string>) => {
+    nodes.value.forEach(node => {
+      if (node.parentNode === parentId) {
+        ids.add(node.id);
+        totalHeight += parseInt(node.data.heightLength || '0') + 10; // 10px 作为间距
+        collectChildNodes(node.id, ids); // 递归收集子节点的子节点
+      }
+    });
+  };
+
+  
+
+  const childNodeIds = new Set<string>();
+  if (isExpanded) {
+    collectChildNodes(nodeId, childNodeIds);
+    console.log('Total ids:', ids);
+  }else {
+    nodes.value.forEach(node => {
+    if (node.parentNode === nodeId) {
+      childNodeIds.add(node.id);
+      totalHeight += parseInt(node.data.heightLength || '0') + 10; // 10px 作为间距
+    }
+  });
+  }
+
+  nodes.value = nodes.value.map(node => {
+    if (node.id === nodeId) {
+      // 更新父节点高度
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          heightLength: isExpanded ? 
+            (parseInt(node.data.heightLength || '0') + totalHeight).toString() :
+            (parseInt(node.data.heightLength || '0') - totalHeight).toString()
+        }
+      };
+    } else if (childNodeIds.has(node.id)) {
+      // 处理直接子节点
+      return {
+        ...node,
+        hidden: isExpanded,
+        // 如果是展开操作，保持子节点的子节点隐藏状态
+        // 如果是折叠操作，强制隐藏所有子节点的子节点
+        data: {
+          ...node.data,
+          heightLength: isExpanded ? node.data.heightLength : '0'
+        }
+      };
+    } else if (node.parentNode && childNodeIds.has(node.parentNode)) {
+      // 处理子子节点（子节点的子节点）
+      return {
+        ...node,
+        hidden: true // 始终保持子子节点隐藏
+      };
+    }
+    return node;
+  });
+};
 
 function resolve() {
   Resolve(value.value).then((data:TableInfo) => {
@@ -178,7 +250,7 @@ function resolve() {
           />
         </template>
         <template #node-jsonChild1="nodeProps">
-          <JsonChild1 :data="nodeProps.data" :id="nodeProps.id"
+          <JsonChild1 :data="nodeProps.data" :id="nodeProps.id" @toggleChildren="handleToggleChildren"
           />
         </template>
 <!--        <template #node-jsonChild2="nodeProps">-->
